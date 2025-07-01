@@ -3,7 +3,7 @@ var tables = doc.stories.everyItem().tables.everyItem().getElements();
 
 doc.stories.everyItem().paragraphs.everyItem().appliedFont = app.fonts.item("Arial");
 doc.stories.everyItem().paragraphs.everyItem().pointSize = 7;
-doc.stories.everyItem().paragraphs.everyItem().leading = 7;
+//doc.stories.everyItem().paragraphs.everyItem().leading = 7;
 var myColor = doc.colors.itemByName("Black");
 doc.stories.everyItem().paragraphs.everyItem().fillColor = myColor;
 
@@ -80,14 +80,14 @@ for (var i = 0; i < tables.length; i++) {
         alert("A tabela " + (i + 1) + " não está dentro de um quadro de texto.");
     }
 
-    table.cells.everyItem().topInset = 0.2;
-    table.cells.everyItem().bottomInset = 0.2;
-    table.cells.everyItem().leftInset = 0.2;
-    table.cells.everyItem().rightInset = 0.2;
+    table.cells.everyItem().topInset = 1;
+    table.cells.everyItem().bottomInset = 1;
+    table.cells.everyItem().leftInset = 1;
+    table.cells.everyItem().rightInset = 1;
 
     table.cells.everyItem().texts[0].appliedFont = app.fonts.item("Arial");
     table.cells.everyItem().texts[0].pointSize = 7;
-    table.cells.everyItem().texts[0].leading = 7;
+    //table.cells.everyItem().texts[0].leading = 7;
     var myColor = doc.colors.itemByName("Black");
     table.cells.everyItem().texts.everyItem().fillColor = myColor;
 }
