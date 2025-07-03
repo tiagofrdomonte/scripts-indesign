@@ -50,6 +50,10 @@ function criarJanela() {
     textoInput.characters = 40;
     textoInput.preferredSize = [400, 150]; // Aumentar o campo de texto para 150px de altura e 300px de largura
 
+    var grupoQuadro = janela.add('group');
+    var quadroCheckbox = grupoQuadro.add('checkbox', undefined, 'Quadro de texto principal');
+    quadroCheckbox.value = false; // Padrão: desmarcado
+
     // Botões OK e Cancelar
     var botoes = janela.add('group');
     botoes.alignment = 'center';    function ajustarParagrafos(textFrame) {
@@ -137,7 +141,8 @@ function criarJanela() {
             largura: largura,
             altura: altura,
             titulo: tituloInput.text,
-            texto: textoInput.text
+            texto: textoInput.text,
+            quadro: quadroCheckbox.value
         };
     } else {
         return null;
@@ -182,21 +187,38 @@ var doc = app.documents.add({
         pageHeight: dados.altura,
         facingPages: false,
         pagesPerDocument: 1,
-        marginsPreferences: {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0
-        },
         columnCount: 1,
         columnGutter: 12,
-        intent: DocumentIntentOptions.PRINT_INTENT
+        intent: DocumentIntentOptions.PRINT_INTENT,
+        createPrimaryTextFrame: dados.quadro // Ativar o quadro de texto principal se a opção estiver marcada
     }
 });
 
+
 // Acessar a primeira página do documento
 var page = doc.pages.item(0);
+var masterPage = doc.masterSpreads[0].pages[0];
 
+with (masterPage.marginPreferences) {
+        top = 0;
+        bottom = 0;
+        left = 0;
+        right = 0;
+    }
+
+if (dados.quadro == true) {
+    // Se houver quadro de texto na página-mestre
+    with (masterPage.textFrames[0]) {
+        // Redimensionar o quadro de texto principal da página-mestre
+        geometricBounds = [
+            0, // Topo
+            0, // Esquerda
+            doc.documentPreferences.pageHeight, // Base
+            doc.documentPreferences.pageWidth   // Direita
+        ];
+    }
+}
+       
 // Zerar as margens da página
 with (page.marginPreferences) {
     top = 0;
@@ -205,56 +227,58 @@ with (page.marginPreferences) {
     right = 0;
 }
 
-// Criar um quadro de texto que ocupa todo o tamanho do documento
-var textFrame = page.textFrames.add();
-textFrame.geometricBounds = [0, 0, dados.altura, dados.largura];
-textFrame.strokeWeight = 1;
-textFrame.strokeAlignment = StrokeAlignment.INSIDE_ALIGNMENT;
-textFrame.textFramePreferences.verticalJustification = VerticalJustification.JUSTIFY_ALIGN;
-textFrame.textFramePreferences.insetSpacing = [1, 1, 1, 1];
+if (dados.quadro == false) {var textFrame = page.textFrames.add();} else {var textFrame = masterPage.textFrames[0];}
+
+    textFrame.geometricBounds = [0, 0, dados.altura, dados.largura];
+    textFrame.strokeWeight = 1;
+    textFrame.strokeAlignment = StrokeAlignment.INSIDE_ALIGNMENT;
+    textFrame.textFramePreferences.verticalJustification = VerticalJustification.JUSTIFY_ALIGN;
+    textFrame.textFramePreferences.insetSpacing = [1, 1, 1, 1];
 
 // Código para adicionar o título e o corpo do texto
-if (dados.titulo === '') {
-    // Substituir quebras de linha no corpo do texto
-    var textoModificado = substituirQuebraNoTexto(dados.texto);
-    textFrame.contents = textoModificado;
+    if (dados.titulo === '') {
+        // Substituir quebras de linha no corpo do texto
+        var textoModificado = substituirQuebraNoTexto(dados.texto);
+        textFrame.contents = textoModificado;
 
-    // Obter os parágrafos do texto
-    var paragraphs = textFrame.paragraphs;
+        // Obter os parágrafos do texto
+        var paragraphs = textFrame.paragraphs;
 
-    // Aplicar formatação ao corpo do texto
-    for (var i = 0; i < paragraphs.length; i++) {
-        paragraphs[i].appliedFont = "Arial";
-        paragraphs[i].pointSize = 7;
-        paragraphs[i].justification = Justification.LEFT_JUSTIFIED;
-        paragraphs[i].fontStyle = "Regular";        
-    }
+        // Aplicar formatação ao corpo do texto
+        for (var i = 0; i < paragraphs.length; i++) {
+            paragraphs[i].appliedFont = "Arial";
+            paragraphs[i].pointSize = 7;
+            paragraphs[i].justification = Justification.LEFT_JUSTIFIED;
+            paragraphs[i].fontStyle = "Regular";        
+        }
 
-} else {
-    // Substituir quebras de linha no corpo do texto, mantendo o título intacto
-    var textoModificado = substituirQuebraNoTexto(dados.texto);
-    textFrame.contents = dados.titulo + "\r" + textoModificado;
+    } 
 
-    var paragraphs = textFrame.paragraphs;
+    else {
+            // Substituir quebras de linha no corpo do texto, mantendo o título intacto
+            var textoModificado = substituirQuebraNoTexto(dados.texto);
+            textFrame.contents = dados.titulo + "\r" + textoModificado;
 
-    if (paragraphs.length > 0) {
-        // Formatar o título
-        paragraphs[0].appliedFont = "Arial";
-        paragraphs[0].pointSize = 8;
-        paragraphs[0].justification = Justification.CENTER_ALIGN;
-        paragraphs[0].fontStyle = "Bold";
-        paragraphs[0].capitalization = Capitalization.ALL_CAPS; // Define o título como maiúsculo
-    }
+            var paragraphs = textFrame.paragraphs;
 
-    // Formatar o corpo do texto
-    for (var i = 1; i < paragraphs.length; i++) {
-        paragraphs[i].appliedFont = "Arial";
-        paragraphs[i].pointSize = 7;
-        paragraphs[i].justification = Justification.LEFT_JUSTIFIED;
-        paragraphs[i].fontStyle = "Regular";
-    }
-}
+            if (paragraphs.length > 0) {
+                // Formatar o título
+                paragraphs[0].appliedFont = "Arial";
+                paragraphs[0].pointSize = 8;
+                paragraphs[0].justification = Justification.CENTER_ALIGN;
+                paragraphs[0].fontStyle = "Bold";
+                paragraphs[0].capitalization = Capitalization.ALL_CAPS; // Define o título como maiúsculo
+            }
 
+            // Formatar o corpo do texto
+            for (var i = 1; i < paragraphs.length; i++) {
+                paragraphs[i].appliedFont = "Arial";
+                paragraphs[i].pointSize = 7;
+                paragraphs[i].justification = Justification.LEFT_JUSTIFIED;
+                paragraphs[i].fontStyle = "Regular";
+            }
+        }
+    //}   else { alert("O quadro de texto principal não foi criado. Verifique as configurações do documento."); }
 // Função de ajuste de excesso de texto
 function ajustarParagrafos(textFrame) {
     if (!textFrame || !(textFrame instanceof TextFrame)) {
