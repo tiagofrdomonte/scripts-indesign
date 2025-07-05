@@ -1,19 +1,17 @@
+ function parseFloatBR(text) {
+        return parseFloat(text.replace(",", "."));
+    }
+
 function main() {
 
-
+   
 
 // Janela para configuração do usuário (layout melhorado)
 var dlg = new Window('dialog', 'Formatar Tabelas');
 dlg.orientation = 'column';
 dlg.alignChildren = 'fill';
 
-// Painel principal
-var panel = dlg.add('panel', undefined, 'Parâmetros');
-panel.orientation = 'column';
-panel.alignChildren = 'left';
-panel.margins = 15;
-
-    var logoGroup = panel.add('group');
+var logoGroup = dlg.add('group');
     logoGroup.orientation = 'row';
     logoGroup.alignment = 'center';
 
@@ -29,16 +27,22 @@ panel.margins = 15;
         // Se não encontrar o logo, não faz nada
     }
 
+    // Painel principal
+var panel = dlg.add('panel', undefined, 'Parâmetros');
+panel.orientation = 'column';
+panel.alignChildren = 'left';
+panel.margins = 20;
+
     // Linha 1: Fonte e Entrelinha
     var row1 = panel.add('group');
     row1.orientation = 'row';
     row1.add('statictext', undefined, 'Tamanho da fonte:');
     var fontSizeInput = row1.add('edittext', undefined, '7');
-    fontSizeInput.characters = 4;
-    
+    fontSizeInput.characters = 3;
+
     row1.add('statictext', undefined, 'Entrelinha:');
     var leadingInput = row1.add('edittext', undefined, '');
-    leadingInput.characters = 4;
+    leadingInput.characters = 3;
 
     // Linha 2: Colunas e Espaçamento interno
     var row2 = panel.add('group');
@@ -47,44 +51,47 @@ panel.margins = 15;
     var columnsInput = row2.add('edittext', undefined, '1');
     columnsInput.characters = 3;
     
-    row2.add('statictext', undefined, 'Espaço interno (mm):');
+    row2.add('statictext', undefined, 'Espaçamento interno:');
     var insetInput = row2.add('edittext', undefined, '1');
-    insetInput.characters = 4;
+    insetInput.characters = 3;
 
     // Linha 3: Altura da linha
     var row3 = panel.add('group');
     row3.orientation = 'row';
     row3.add('statictext', undefined, 'Altura da linha (mm):');
-    var rowHeightInput = row3.add('edittext', undefined, '1.058');
-    rowHeightInput.characters = 5;
+    var rowHeightInput = row3.add('edittext', undefined, '1,058');
+    rowHeightInput.characters = 4;
+
+    // var marginCol5 = panel.add('group');
+    // marginCol5.orientation = 'row';
+    // var tracado = marginCol5.add('statictext', undefined, 'Espessura do Traçado (pt):');
+    // var tracadoInput = marginCol5.add('edittext', undefined, '1');
+    // tracadoInput.characters = 3;
 
 // Linha 4: Margens das células
 var marginPanel = panel.add('panel', undefined, 'Margens da célula (mm)');
-marginPanel.orientation = 'row';
-marginPanel.alignChildren = 'top';
+marginPanel.alignment = 'fill';
+marginPanel.orientation = 'column';
+marginPanel.alignChildren = 'center';
 
-    var marginCol1 = marginPanel.add('group');
-    marginCol1.orientation = 'column';
-    marginCol1.add('statictext', undefined, 'Superior:');
-    marginCol1.add('statictext', undefined, 'Inferior:');
-
-    var marginCol2 = marginPanel.add('group');
-    marginCol2.orientation = 'column';
-    var topInput = marginCol2.add('edittext', undefined, '1');
+    var marginLine1 = marginPanel.add('group');
+    marginLine1.orientation = 'row';
+    marginLine1.add('statictext', undefined, '↑:');
+    var topInput = marginLine1.add('edittext', undefined, '1');
     topInput.characters = 4;
-    var bottomInput = marginCol2.add('edittext', undefined, '1');
+
+    marginLine1.add('statictext', undefined, '←:');
+    var leftInput = marginLine1.add('edittext', undefined, '1');
+    leftInput.characters = 4;
+    
+    var marginLine2 = marginPanel.add('group');
+    marginLine2.orientation = 'row';
+    marginLine2.add('statictext', undefined, '↓:');
+    var bottomInput = marginLine2.add('edittext', undefined, '1');
     bottomInput.characters = 4;
 
-    var marginCol3 = marginPanel.add('group');
-    marginCol3.orientation = 'column';
-    marginCol3.add('statictext', undefined, 'Esquerda:');
-    marginCol3.add('statictext', undefined, 'Direita:');
-
-    var marginCol4 = marginPanel.add('group');
-    marginCol4.orientation = 'column';
-    var leftInput = marginCol4.add('edittext', undefined, '1');
-    leftInput.characters = 4;
-    var rightInput = marginCol4.add('edittext', undefined, '1');
+    marginLine2.add('statictext', undefined, '→:');
+    var rightInput = marginLine2.add('edittext', undefined, '1');
     rightInput.characters = 4;
 
 // Botões
@@ -94,30 +101,34 @@ btns.alignment = 'center';
 var okBtn = btns.add('button', undefined, 'OK');
 var cancelBtn = btns.add('button', undefined, 'Cancelar');
 
-cancelBtn.onClick = function() {
-    dlg.close(0);
-};
+okBtn.onClick = function() {dlg.close(1);};
+
+cancelBtn.onClick = function() {dlg.close(0);};
 
 if (dlg.show() != 1) exit();
 
+
 // Pega valores do usuário
-fontSizeInput.text = fontSizeInput.text.replace(",", ".");
-var fontSize = parseFloat(fontSizeInput.text);
+var fontSize = parseFloatBR(fontSizeInput.text);
 if (isNaN(fontSize)) {
     alert("Por favor, insira um tamanho de fonte válido.");
     main();
 }
 
-leadingInput.text = leadingInput.text.replace(",", ".");
-var leading = leadingInput.text === "" ? undefined : parseFloat(leadingInput.text);
+var leading = leadingInput.text === "" ? undefined : parseFloatBR(leadingInput.text);
 
 var numColumns = parseInt(columnsInput.text, 10) || 1;
-var inset = parseFloat(insetInput.text) || 1;
-var topInset = parseFloat(topInput.text) || 0;
-var bottomInset = parseFloat(bottomInput.text) || 0;
-var leftInset = parseFloat(leftInput.text) || 0;
-var rightInset = parseFloat(rightInput.text) || 0;
-var rowHeight = parseFloat(rowHeightInput.text) || 1.058;
+if (isNaN(numColumns) || numColumns < 1) {
+    alert("Por favor, insira um número válido de colunas.");
+    main();
+}
+
+var inset = parseFloatBR(insetInput.text) || 1;
+var topInset = parseFloatBR(topInput.text) || 0;
+var bottomInset = parseFloatBR(bottomInput.text) || 0;
+var leftInset = parseFloatBR(leftInput.text) || 0;
+var rightInset = parseFloatBR(rightInput.text) || 0;
+var rowHeight = parseFloatBR(rowHeightInput.text) || 1.058;
 
 var doc = app.activeDocument;
 var tables = doc.stories.everyItem().tables.everyItem().getElements();
@@ -216,7 +227,38 @@ for (var i = 0; i < tables.length; i++) {
     table.cells.everyItem().texts.everyItem().fillColor = myColor;
 }
 
-alert("Todas as tabelas foram ajustadas! ✅");
+if (app.documents.length === 0) {
+    alert("Nenhum documento aberto.");
+    exit();
+}
+
+var pages = doc.pages;
+var removedCount = 0;
+
+for (var i = pages.length - 1; i >= 0; i--) {
+    var page = pages[i];
+    var textFrames = page.textFrames;
+    var allEmpty = true;
+
+    if (textFrames.length === 0) {
+        // Se não há quadros de texto, considere a página como vazia
+        allEmpty = true;
+    } else {
+        for (var j = 0; j < textFrames.length; j++) {
+            if (textFrames[j].contents !== "") {
+                allEmpty = false;
+                break;
+            }
+        }
+    }
+
+    if (allEmpty) {
+        page.remove();
+        removedCount++;
+    }
+}
+
+alert("Todas as tabelas foram ajustadas! ✅\n" + "Páginas em branco removidas: " + removedCount + "\n\n");
 
 }
 

@@ -51,7 +51,7 @@ function criarJanela() {
     textoInput.preferredSize = [400, 150]; // Aumentar o campo de texto para 150px de altura e 300px de largura
 
     var grupoQuadro = janela.add('group');
-    var quadroCheckbox = grupoQuadro.add('checkbox', undefined, 'Quadro de texto principal');
+    var quadroCheckbox = grupoQuadro.add('checkbox', undefined, 'Quadro de texto principal (balanço + de 1 página)');
     quadroCheckbox.value = false; // Padrão: desmarcado
 
     // Botões OK e Cancelar
